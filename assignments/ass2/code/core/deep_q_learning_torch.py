@@ -4,9 +4,9 @@ from typing import Tuple
 import numpy as np
 import torch
 import torch.nn as nn
-from core.q_learning import QN
+from .q_learning import QN
 from torch.optim import Optimizer
-from torch.tensor import Tensor
+from torch import Tensor
 from torch.utils.tensorboard import SummaryWriter
 
 

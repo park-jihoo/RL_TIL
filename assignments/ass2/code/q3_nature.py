@@ -1,3 +1,6 @@
+import torch
+import copy
+
 from configs.q3_nature import config
 from q1_schedule import LinearExploration, LinearSchedule
 from q2_linear import Linear
@@ -37,9 +40,27 @@ class NatureQN(Linear):
         img_height, img_width, n_channels = state_shape
         num_actions = self.env.action_space.n
 
+        pad_1 = (3 * img_height - 4 + 8) // 2
+        pad_2 = (1 * img_height - 2 + 4) // 2
+        pad_3 = (0 * img_height - 1 + 3) // 2
+
         ##############################################################
         ################ YOUR CODE HERE - 25-30 lines lines ################
-
+        self.q_network = torch.nn.Sequential(
+            torch.nn.Conv2d(in_channels=n_channels * self.config.state_history, out_channels=32, kernel_size=8,
+                            stride=4, padding=pad_1),  # 32 filters of 8*8 with stride 4
+            torch.nn.Conv2d(in_channels=32, out_channels=64, kernel_size=4, stride=2, padding=pad_2),
+            # 64 filters of 4*4 with stride 2
+            torch.nn.ReLU(),
+            torch.nn.Conv2d(in_channels=64, out_channels=64, kernel_size=3, stride=1, padding=pad_3),
+            # 64 filters of 3*3 with stride 1
+            torch.nn.Flatten(),  # persist batch dimension
+            torch.nn.Linear(in_features=64 * img_height * img_width, out_features=512),  # out_features=512
+            torch.nn.ReLU(),
+            torch.nn.Linear(in_features=512, out_features=num_actions),  # in_features=512
+            torch.nn.ReLU()
+        )
+        self.target_network = copy.deepcopy(self.q_network)
         ##############################################################
         ######################## END YOUR CODE #######################
 
@@ -64,6 +85,10 @@ class NatureQN(Linear):
 
         ##############################################################
         ################ YOUR CODE HERE - 4-5 lines lines ################
+        if network == "q_network":
+            out = self.q_network(state.permute(0, 3, 1, 2))
+        else:
+            out = self.target_network(state.permute(0, 3, 1, 2))
 
         ##############################################################
         ######################## END YOUR CODE #######################
@@ -78,11 +103,11 @@ if __name__ == '__main__':
 
     # exploration strategy
     exp_schedule = LinearExploration(env, config.eps_begin,
-            config.eps_end, config.eps_nsteps)
+                                     config.eps_end, config.eps_nsteps)
 
     # learning rate schedule
-    lr_schedule  = LinearSchedule(config.lr_begin, config.lr_end,
-            config.lr_nsteps)
+    lr_schedule = LinearSchedule(config.lr_begin, config.lr_end,
+                                 config.lr_nsteps)
 
     # train model
     model = NatureQN(env, config)

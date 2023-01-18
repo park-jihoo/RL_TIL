@@ -7,7 +7,7 @@ class config():
     high             = 255.
 
     # output config
-    output_path  = "results/q5_linear/"
+    output_path  = "results/q2_linear/"
     model_output = output_path + "model.weights.pt"
     log_path     = output_path + "log.txt"
     plot_output  = output_path + "scores.png"
