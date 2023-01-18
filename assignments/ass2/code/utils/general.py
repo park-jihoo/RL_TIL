@@ -1,7 +1,6 @@
 import logging
 import sys
 import time
-from collections import deque
 
 import matplotlib
 import numpy as np
@@ -62,7 +61,10 @@ class Progbar(object):
         self.verbose = verbose
         self.discount = discount
 
-    def update(self, current, values=[], exact=[], strict=[], exp_avg=[]):
+    def reset_start(self):
+        self.start = time.time()
+
+    def update(self, current, values=[], exact=[], strict=[], exp_avg=[], base=0):
         """
         Updates the progress bar.
         # Arguments
@@ -120,7 +122,7 @@ class Progbar(object):
             self.total_width = len(bar)
 
             if current:
-                time_per_unit = (now - self.start) / current
+                time_per_unit = (now - self.start) / (current - base)
             else:
                 time_per_unit = 0
             eta = time_per_unit*(self.target - current)
@@ -135,7 +137,7 @@ class Progbar(object):
                 else:
                     info += ' - %s: %s' % (k, self.sum_values[k])
 
-            for k, v in self.exp_avg.iteritems():
+            for k, v in self.exp_avg.items():
                 info += ' - %s: %.4f' % (k, v)
 
             self.total_width += len(info)

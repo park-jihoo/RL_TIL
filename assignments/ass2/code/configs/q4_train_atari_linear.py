@@ -8,8 +8,8 @@ class config():
     high             = 255.
 
     # output config
-    output_path  = "results/q4_train_atari_linear/"
-    model_output = output_path + "model.weights/"
+    output_path  = "results/q7_train_atari_linear/"
+    model_output = output_path + "model.weights"
     log_path     = output_path + "log.txt"
     plot_output  = output_path + "scores.png"
     record_path  = output_path + "monitor/"
@@ -33,10 +33,10 @@ class config():
     learning_freq      = 4
     state_history      = 4
     skip_frame         = 4
-    lr_begin           = 0.00025
+    lr_begin           = 0.00008
     lr_end             = 0.00005
-    lr_nsteps          = nsteps_train/2
-    eps_begin          = 1
+    lr_nsteps          = 500000
+    eps_begin          = 0.5
     eps_end            = 0.1
     eps_nsteps         = 1000000
     learning_start     = 50000

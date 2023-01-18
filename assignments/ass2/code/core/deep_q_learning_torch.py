@@ -12,22 +12,22 @@ from torch.utils.tensorboard import SummaryWriter
 
 class DQN(QN):
 
-    def __init__(self, env, config, logger = None):
+    def __init__(self, env, config, logger=None):
         self.q_network = None
         self.target_network = None
         self.optimizer = None
         self.device = 'cuda:0' if torch.cuda.is_available() else 'cpu'
         print(f'Running model on device {self.device}')
         super().__init__(env, config, logger)
-        self.summary_writer = SummaryWriter(self.config.output_path, max_queue = 1e5)
+        self.summary_writer = SummaryWriter(self.config.output_path, max_queue=1e5)
 
     """
     Abstract class for Deep Q Learning
     """
-
     def initialize_models(self):
         """ Define the modules needed for the module to work."""
         raise NotImplementedError
+
 
     def get_q_values(self, state: Tensor, network: str) -> Tensor:
         """
@@ -39,11 +39,12 @@ class DQN(QN):
         """
         raise NotImplementedError
 
+
     def update_target(self) -> None:
         """
-        Update_target_op will be called periodically
+        Update_target_op will be called periodically 
         to copy Q network to target Q network
-
+    
         Args:
             q_scope: name of the scope of variables for q
             target_q_scope: name of the scope of variables for the target
@@ -51,12 +52,14 @@ class DQN(QN):
         """
         raise NotImplementedError
 
-    def calc_loss(self, q_values: Tensor, target_q_values: Tensor,
-                  actions: Tensor, rewards: Tensor, done_mask: Tensor) -> Tensor:
+
+    def calc_loss(self, q_values : Tensor, target_q_values : Tensor, 
+                    actions : Tensor, rewards: Tensor, done_mask: Tensor) -> Tensor:
         """
         Set (Q_target - Q)^2
         """
         raise NotImplementedError
+
 
     def add_optimizer(self) -> Optimizer:
         """
@@ -64,7 +67,8 @@ class DQN(QN):
         """
         raise NotImplementedError
 
-    def process_state(self, state: Tensor) -> Tensor:
+
+    def process_state(self, state : Tensor) -> Tensor:
         """
         Processing of state
 
@@ -81,6 +85,7 @@ class DQN(QN):
 
         return state
 
+
     def build(self):
         """
         Build model by adding all necessary variables
@@ -90,21 +95,20 @@ class DQN(QN):
             print('Loading parameters from file:', self.config.load_path)
             load_path = Path(self.config.load_path)
             assert load_path.is_file(), f'Provided load_path ({load_path}) does not exist'
-            self.q_network.load_state_dict(torch.load(load_path, map_location = 'cpu'))
+            self.q_network.load_state_dict(torch.load(load_path, map_location='cpu'))
             print('Load successful!')
         else:
             print('Initializing parameters randomly')
-
             def init_weights(m):
                 if hasattr(m, 'weight'):
-                    nn.init.xavier_uniform_(m.weight, gain = 2 ** (1./2))
+                    nn.init.xavier_uniform_(m.weight, gain=2 ** (1. / 2))
                 if hasattr(m, 'bias'):
                     nn.init.zeros_(m.bias)
-
             self.q_network.apply(init_weights)
         self.q_network = self.q_network.to(self.device)
         self.target_network = self.target_network.to(self.device)
         self.add_optimizer()
+
 
     def initialize(self):
         """
@@ -116,6 +120,7 @@ class DQN(QN):
             'WARNING: Networks not initialized. Check initialize_models'
         self.update_target()
 
+       
     def add_summary(self, latest_loss, latest_total_norm, t):
         """
         Tensorboard stuff
@@ -130,6 +135,7 @@ class DQN(QN):
         self.summary_writer.add_scalar('Std_Q', self.std_q, t)
         self.summary_writer.add_scalar('Eval_Reward', self.eval_reward, t)
 
+
     def save(self):
         """
         Saves session
@@ -138,6 +144,7 @@ class DQN(QN):
         #     os.makedirs(self.config.model_output)
         torch.save(self.q_network.state_dict(), self.config.model_output)
         # self.saver.save(self.sess, self.config.model_output)
+
 
     def get_best_action(self, state: Tensor) -> Tuple[int, np.ndarray]:
         """
@@ -150,11 +157,12 @@ class DQN(QN):
             action_values: (np array) q values for all actions
         """
         with torch.no_grad():
-            s = torch.tensor(state, dtype = torch.uint8, device = self.device).unsqueeze(0)
+            s = torch.tensor(state, dtype=torch.uint8, device=self.device).unsqueeze(0)
             s = self.process_state(s)
             action_values = self.get_q_values(s, 'q_network').squeeze().to('cpu').tolist()
         action = np.argmax(action_values)
         return action, action_values
+
 
     def update_step(self, t, replay_buffer, lr):
         """
@@ -171,7 +179,7 @@ class DQN(QN):
         s_batch, a_batch, r_batch, sp_batch, done_mask_batch = replay_buffer.sample(
             self.config.batch_size)
         self.timer.end('update_step/replay_buffer.sample')
-
+        
         assert self.q_network is not None and self.target_network is not None, \
             'WARNING: Networks not initialized. Check initialize_models'
         assert self.optimizer is not None, \
@@ -179,11 +187,11 @@ class DQN(QN):
 
         # Convert to Tensor and move to correct device
         self.timer.start('update_step/converting_tensors')
-        s_batch = torch.tensor(s_batch, dtype = torch.uint8, device = self.device)
-        a_batch = torch.tensor(a_batch, dtype = torch.uint8, device = self.device)
-        r_batch = torch.tensor(r_batch, dtype = torch.float, device = self.device)
-        sp_batch = torch.tensor(sp_batch, dtype = torch.uint8, device = self.device)
-        done_mask_batch = torch.tensor(done_mask_batch, dtype = torch.bool, device = self.device)
+        s_batch = torch.tensor(s_batch, dtype=torch.uint8, device=self.device)
+        a_batch = torch.tensor(a_batch, dtype=torch.uint8, device=self.device)
+        r_batch = torch.tensor(r_batch, dtype=torch.float, device=self.device)
+        sp_batch = torch.tensor(sp_batch, dtype=torch.uint8, device=self.device)
+        done_mask_batch = torch.tensor(done_mask_batch, dtype=torch.bool, device=self.device)
         self.timer.end('update_step/converting_tensors')
 
         # Reset Optimizer
@@ -204,8 +212,8 @@ class DQN(QN):
         self.timer.end('update_step/forward_pass_target')
 
         self.timer.start('update_step/loss_calc')
-        loss = self.calc_loss(q_values, target_q_values,
-                              a_batch, r_batch, done_mask_batch)
+        loss = self.calc_loss(q_values, target_q_values, 
+            a_batch, r_batch, done_mask_batch)
         self.timer.end('update_step/loss_calc')
         self.timer.start('update_step/loss_backward')
         loss.backward()
@@ -223,6 +231,7 @@ class DQN(QN):
         self.optimizer.step()
         self.timer.end('update_step/optimizer')
         return loss.item(), total_norm.item()
+
 
     def update_target_params(self):
         """

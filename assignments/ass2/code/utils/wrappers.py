@@ -3,8 +3,7 @@ from collections import deque
 import gym
 import numpy as np
 from gym import spaces
-
-from viewer import SimpleImageViewer
+from utils.viewer import SimpleImageViewer
 
 
 class MaxAndSkipEnv(gym.Wrapper):
@@ -19,7 +18,7 @@ class MaxAndSkipEnv(gym.Wrapper):
         self._obs_buffer = deque(maxlen=2)
         self._skip       = skip
 
-    def _step(self, action):
+    def step(self, action):
         total_reward = 0.0
         done = None
         for _ in range(self._skip):
@@ -33,7 +32,7 @@ class MaxAndSkipEnv(gym.Wrapper):
 
         return max_frame, total_reward, done, info
 
-    def _reset(self):
+    def reset(self):
         """Clear past frame buffer and init. to first obs. from inner env."""
         self._obs_buffer.clear()
         obs = self.env.reset()
@@ -60,11 +59,11 @@ class PreproWrapper(gym.Wrapper):
         self.overwrite_render = overwrite_render
         self.viewer = None
         self.prepro = prepro
-        self.observation_space = spaces.Box(low=0, high=high, shape=shape)
+        self.observation_space = spaces.Box(low=0, high=high, shape=shape, dtype=np.uint8)
         self.high = high
 
 
-    def _step(self, action):
+    def step(self, action):
         """
         Overwrites _step function from environment to apply preprocess
         """
@@ -73,7 +72,7 @@ class PreproWrapper(gym.Wrapper):
         return self.obs, reward, done, info
 
 
-    def _reset(self):
+    def reset(self):
         self.obs = self.prepro(self.env.reset())
         return self.obs
 
@@ -93,7 +92,6 @@ class PreproWrapper(gym.Wrapper):
             if mode == 'rgb_array':
                 return img
             elif mode == 'human':
-                from gym.envs.classic_control import rendering
                 if self.viewer is None:
                     self.viewer = SimpleImageViewer()
                 self.viewer.imshow(img)
