@@ -60,8 +60,9 @@ def policy_evaluation(P, nS, nA, policy, gamma = 0.9, tol = 1e-3):
         prev_value_function = np.copy(value_function)
         for s in range(nS):
             action = policy[s]
-            probability, nextstate, reward, terminal = P[s][action][0]
-            v = reward + gamma*probability*prev_value_function[nextstate]
+            v = 0
+            for probability, nextstate, reward, terminal in P[s][action]:
+                v += reward + gamma*probability*prev_value_function[nextstate]
             value_function[s] = v
         if np.max(value_function - prev_value_function) < tol:
             break
@@ -98,8 +99,9 @@ def policy_improvement(P, nS, nA, value_from_policy, policy, gamma = 0.9):
         action = 0
         q_max = 0
         for a in range(nA):
-            probability, nextstate, reward, terminal = P[s][a][0]
-            q = reward + gamma*probability*value_from_policy[nextstate]
+            q = 0
+            for probability, nextstate, reward, terminal in P[s][a]:
+                q += reward + gamma*probability*value_from_policy[nextstate]
             if q > q_max:
                 q_max = q
                 action = a
@@ -171,8 +173,9 @@ def value_iteration(P, nS, nA, gamma = 0.9, tol = 1e-3):
             bv_max = 0
             action = 0
             for a in range(nA):
-                probability, nextstate, reward, terminal = P[s][a][0]
-                bv = reward + gamma*probability*prev_value_function[nextstate]
+                bv = 0
+                for probability, nextstate, reward, terminal in P[s][a]:
+                    bv += reward + gamma*probability*prev_value_function[nextstate]
                 if bv > bv_max:
                     bv_max = bv
                     action = a
@@ -213,6 +216,7 @@ def render_single(env, policy, max_steps = 100):
     if not done:
         print("The agent didn't reach a terminal state in {} steps.".format(max_steps))
     else:
+        print("Final Step {}".format(t))
         print("Episode reward: %f"%episode_reward)
 
 
@@ -222,8 +226,7 @@ def render_single(env, policy, max_steps = 100):
 if __name__ == "__main__":
 
     # comment/uncomment these lines to switch between deterministic/stochastic environments
-    # env = gym.make("Deterministic-4x4-FrozenLake-v0")
-    env = gym.make("Stochastic-4x4-FrozenLake-v0")
+    env = gym.make("Deterministic-4x4-FrozenLake-v0")
     print("\n" + "-"*25 + "\nBeginning Policy Iteration\n" + "-"*25)
 
     V_pi, p_pi = policy_iteration(env.P, env.nS, env.nA, gamma = 0.9, tol = 1e-3)
@@ -233,3 +236,21 @@ if __name__ == "__main__":
 
     V_vi, p_vi = value_iteration(env.P, env.nS, env.nA, gamma = 0.9, tol = 1e-3)
     render_single(env, p_vi, 100)
+
+    env = gym.make("Stochastic-4x4-FrozenLake-v0")
+
+    print("\n" + "-"*25 + "\nBeginning Stochastic Policy Iteration\n" + "-"*25)
+
+    V_pi_sto, p_pi_sto = policy_iteration(env.P, env.nS, env.nA, gamma = 0.9, tol = 1e-3)
+    render_single(env, p_pi_sto, 100)
+
+    print('  Optimal Value Function: %r'%V_pi_sto)
+    print('  Optimal Policy:         %r'%p_pi_sto)
+
+    print("\n" + "-"*25 + "\nBeginning Stochastic Value Iteration\n" + "-"*25)
+
+    V_vi_sto, p_vi_sto = value_iteration(env.P, env.nS, env.nA, gamma = 0.9, tol = 1e-3)
+    render_single(env, p_vi_sto, 100)
+
+    print('  Optimal Value Function: %r'%V_vi_sto)
+    print('  Optimal Policy:         %r'%p_vi_sto)
