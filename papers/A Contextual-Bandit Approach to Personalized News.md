@@ -1,5 +1,4 @@
-# A Contextual-Bandit Approach to
-Personalized News Article Recommendation
+# A Contextual-Bandit Approach to Personalized News Article Recommendation
 
 날짜: 2023년 2월 28일 오후 3:42
 링크: http://rob.schapire.net/papers/www10.pdf
