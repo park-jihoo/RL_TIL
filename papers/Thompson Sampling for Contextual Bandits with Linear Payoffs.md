@@ -20,29 +20,21 @@
 * An algorithm for contextuala bandit problem needs to choose, at every time $t$, an arm $a(t)$ to play, and let $a^*(t)=\argmax_i b_i(t)^\top\mu$
 * Then Regret becomes difference between the optimal arm and of arm i at time t
   
-  $$
-  \Delta_i(t) = b_{a^*(t)}(t)^\top\mu - b_i(t)^\top\mu
-  $$
-  
-  $$
-  regret(t) = \Delta_{a(t)}(t)
-  $$
+  $$\Delta_i(t) = b_{a^*(t)}(t)^\top\mu - b_i(t)^\top\mu$$
+
+  $$regret(t) = \Delta_{a(t)}(t)$$
 
 * We need to minimize total regret in time T
 * We assume that $\eta_{i,t} = r_i(t)-b_i(t)^\top\mu$ is conditionally R-sub-gaussian for a constant $R\ge 0$
   
-  $$
-  \forall\lambda\in\reals,\Bbb{E}[e^{\lambda_{\eta_{i,t}}}|\{b_i(t)\}_{i=1}^N, H_{t-1}]\le\exp(\frac{\lambda^2R^2}{2})
-  $$
+  $$\forall\lambda\in\reals,\Bbb{E}[e^{\lambda_{\eta_{i,t}}}|\{b_i(t)\}_{i=1}^N, H_{t-1}]\le\exp(\frac{\lambda^2R^2}{2})$$
 
 ### Thompson Sampling Algorithm
 * Suppose that the likelihood of reward $r_i(t)$ at time $t$, given context $b_i(t)$ and parameter $\mu$, were given by the pdf of Gaussian distribution $N(b_i(t)^\top\mu, v^2)$, $v=R\sqrt{9d\ln(\frac T \delta)}$
   
-  $$
-  B(t) = I_d + \sum_{r=1}^{t-1}b_{a(\tau)}(\tau)b_{a(\tau)}(\tau)^\top
+  $$B(t) = I_d + \sum_{r=1}^{t-1}b_{a(\tau)}(\tau)b_{a(\tau)}(\tau)^\top
   \\
-  \tilde{\mu}(t) = B(t)^{-1}(\sum_{r=1}^{t-1}b_{a(\tau)}(\tau)r_{a(\tau)}(\tau))
-  $$
+  \tilde{\mu}(t) = B(t)^{-1}(\sum_{r=1}^{t-1}b_{a(\tau)}(\tau)r_{a(\tau)}(\tau))$$
 
 * If **prior** for $\mu$ at time $t$ is given by $N(\tilde{\mu}(t), v^2B(t)^{-1})$, **posterior** distribution at $t+1$ is $\Pr(\tilde{\mu}|r_i(t))\propto\Pr(r_i(t)|\tilde\mu)\Pr(\tilde\mu)$
 * Algorithm: Thompson Sampling for Contextual Bandits
@@ -55,13 +47,9 @@
 ### Our Results
 #### Theorem 1
 With Probability $1-\delta$, the total regret for Thompson Sampling algorithm in time T is bounded as
-$$
- R(T) = O\left({d^{3/2} \sqrt{T} \left({ \ln(T) \sqrt{\ln(T)\ln(\frac 1 \delta)}}\right) }\right)
-$$
+$$R(T) = O\left({d^{3/2} \sqrt{T} \left({ \ln(T) \sqrt{\ln(T)\ln(\frac 1 \delta)}}\right) }\right)$$
 or
-$$
- R(T) = O\left({d \sqrt{T\log(N)} \left({ \ln(T) \sqrt{\ln(T)\ln(\frac 1 \delta)}}\right) }\right)
-$$
+$$R(T) = O\left({d \sqrt{T\log(N)} \left({ \ln(T) \sqrt{\ln(T)\ln(\frac 1 \delta)}}\right) }\right)$$
 whichever is smaller, for any $0<\delta<1$
 
 ## Regret Analysis - Proof of [Theorem 1](#theorem-1)
