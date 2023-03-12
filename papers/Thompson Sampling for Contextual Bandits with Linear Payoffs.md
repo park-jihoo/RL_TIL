@@ -1,5 +1,18 @@
 # [Thompson Sampling for Contextual Bandits with Linear Payoffs](https://arxiv.org/pdf/1209.3352.pdf)
 
+- [Thompson Sampling for Contextual Bandits with Linear Payoffs](#thompson-sampling-for-contextual-bandits-with-linear-payoffs)
+  - [Introduction](#introduction)
+    - [General Structure for Thompson Sampling](#general-structure-for-thompson-sampling)
+    - [In Contextual Bandit](#in-contextual-bandit)
+  - [Problem setting and Algorithm Description](#problem-setting-and-algorithm-description)
+    - [Problem Setting](#problem-setting)
+    - [Thompson Sampling Algorithm](#thompson-sampling-algorithm)
+    - [Our Results](#our-results)
+      - [Theorem 1](#theorem-1)
+  - [Regret Analysis - Proof of Theorem 1](#regret-analysis---proof-of-theorem-1)
+    - [Technical Outline](#technical-outline)
+    - [Formal Proof](#formal-proof)
+  
 ## Introduction
 ### General Structure for Thompson Sampling
 1. a set $\Theta$ of parameters $\tilde\mu$
@@ -14,10 +27,10 @@
 
 ## Problem setting and Algorithm Description
 ### Problem Setting
-* There are N arms, and a context vector $b_i(t)\in\reals^d$ is revealed
+* There are N arms, and a context vector $b_i(t)\in\mathbb{R}^d$ is revealed
 * History $H_{t-1} = \{ a(\tau), r_{a(\tau)}(\tau),b_i(\tau),i=1,\dots,N,\tau =1,\dots,t-1 \}$
 * Reward for arm i at time t is generated from distribution with mean $b_i(t)^\top\mu$
-* An algorithm for contextuala bandit problem needs to choose, at every time $t$, an arm $a(t)$ to play, and let $a^*(t)=\argmax_i b_i(t)^\top\mu$
+* An algorithm for contextuala bandit problem needs to choose, at every time $t$, an arm $a(t)$ to play, and let $a^*(t)=\mathrm{argmax}_i b_i(t)^\top\mu$
 * Then Regret becomes difference between the optimal arm and of arm i at time t
   
   $$\Delta_i(t) = b_{a^*(t)}(t)^\top\mu - b_i(t)^\top\mu$$
